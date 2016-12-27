@@ -1,0 +1,24 @@
+{
+  "name" : "Isolation Mode",
+  "description" : "A pair of Sketch commands that attempt to mimic how isolation mode works in Illustrator",
+  "identifier" : "com.nefaurk.isolation-mode",
+  "version" : "1.0a",
+  "author" : "Nefaur Khandker",
+  "authorEmail" : "nefaurk@gmail.com",
+  "commands" : [
+    {
+      "script" : "isolate.cocoascript",
+      "handler" : "isolateSelection",
+      "shortcut" : "ctrl e",
+      "name" : "Isolate Selection",
+      "identifier" : "isolateSelection"
+    },
+    {
+      "script" : "isolate.cocoascript",
+      "handler" : "exitIsolationMode",
+      "shortcut" : "ctrl q",
+      "name" : "Exit Isolation Mode",
+      "identifier" : "exitIsolationMode"
+    }
+  ]
+}

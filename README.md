@@ -1,0 +1,3 @@
+An experimental plug-in that attempts to mimic Illustrator's isolation mode with a pair of Sketch commands.
+
+**WARNING:** This plug-in assumes that you don't manually lock layers and that you always leave the "Click-through when selecting" option disabled for all groups. When you exit isolation mode *all* layers will be unlocked and all groups will have their "Click-through when selecting" option disabled.

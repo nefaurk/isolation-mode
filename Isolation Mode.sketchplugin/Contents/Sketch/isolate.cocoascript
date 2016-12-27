@@ -1,0 +1,94 @@
+// Actions
+
+function isolateSelection(context) {
+  var doc = context.document;
+  var selection = context.selection;
+  if (selection == null || selection.count() < 1) {
+    doc.showMessage("Select a group to isolate");
+  } else {
+    var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
+    var groups = selection.filteredArrayUsingPredicate(predicate);
+    if (groups.count() > 0) {
+      lockAllLayers(context);
+      
+      var groupLoop = groups.objectEnumerator();
+      var group;
+      while (group = groupLoop.nextObject()) {
+        isolateGroup(context, group);
+      }
+    } else {
+      doc.showMessage("Select a group to isolate");
+    }
+  }
+}
+
+function exitIsolationMode(context) {
+  unlockAllLayers(context);
+}
+
+// Helper functions
+
+function isolateGroup(context, group) {
+  unlockLayerTree(context, group);
+  unlockAncestors(context, group);
+}
+
+function lockAllLayers(context) {
+  var doc = context.document;
+  var page = doc.currentPage();
+  
+  var allLayers = page.children();
+  var layerLoop = allLayers.objectEnumerator();
+  var layer;
+  while (layer = layerLoop.nextObject()) {
+    layer.setIsLocked(true);
+  }
+}
+
+function unlockLayerTree(context, tree) {
+  tree.setIsLocked(false);
+  tree.setHasClickThrough(true);
+  
+  var children = tree.children();
+  var childLoop = children.objectEnumerator();
+  var child;
+  while (child = childLoop.nextObject()) {
+    child.setIsLocked(false);
+  }
+  
+  var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
+  var subgroups = children.filteredArrayUsingPredicate(predicate);
+  var subgroupLoop = subgroups.objectEnumerator();
+  var subgroup;
+  while (subgroup = subgroupLoop.nextObject()) {
+    subgroup.setHasClickThrough(true);
+  }
+}
+
+function unlockAncestors(context, layer) {
+  var container = layer.parentGroup();
+  if (container != null) {
+    container.setIsLocked(false);
+    container.setHasClickThrough(true);
+    unlockAncestors(context, container);
+  }
+}
+
+function unlockAllLayers(context) {
+  var doc = context.document;
+  var page = doc.currentPage();
+  var allLayers = page.children();
+  var layerLoop = allLayers.objectEnumerator();
+  var layer;
+  while (layer = layerLoop.nextObject()) {
+    layer.setIsLocked(false);
+  }
+  
+  var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
+  var groups = allLayers.filteredArrayUsingPredicate(predicate);
+  var groupLoop = groups.objectEnumerator();
+  var group;
+  while (group = groupLoop.nextObject()) {
+    group.setHasClickThrough(false);
+  }
+}
