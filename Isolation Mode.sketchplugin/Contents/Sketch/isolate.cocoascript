@@ -4,29 +4,59 @@ function isolateSelection(context) {
   var doc = context.document;
   var selection = context.selection;
   if (selection == null || selection.count() < 1) {
-    doc.showMessage("Select a group to isolate");
+    doc.showMessage("Select a group to isolate.");
   } else {
-    var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
-    var groups = selection.filteredArrayUsingPredicate(predicate);
-    if (groups.count() > 0) {
+    var objectLoop = selection.objectEnumerator();
+    var object;
+    var groupsToIsolate = {};
+    while (object = objectLoop.nextObject()) {
+      if (object.className() == "MSLayerGroup") {
+        groupsToIsolate[object.objectID()] = object;
+      } else {
+        var parentGroup = findParentGroup(object);
+        if (parentGroup != null) {
+          groupsToIsolate[parentGroup.objectID()] = parentGroup;
+        }
+      }
+    }
+    if (Object.keys(groupsToIsolate).length > 0) {
       lockAllLayers(context);
       
-      var groupLoop = groups.objectEnumerator();
-      var group;
-      while (group = groupLoop.nextObject()) {
+      var groupNames = "";
+      var addedItem = false;
+      for (var id in groupsToIsolate) {
+        var group = groupsToIsolate[id];
+        if (addedItem) {
+          groupNames += ", ";
+        }
+        groupNames += group.name();
+        addedItem = true;
         isolateGroup(context, group);
       }
-    } else {
-      doc.showMessage("Select a group to isolate");
+      doc.showMessage("Isolating " + groupNames + ".");
     }
   }
 }
 
 function exitIsolationMode(context) {
+  var doc = context.document;
   unlockAllLayers(context);
+  doc.showMessage("Exiting isolation mode.");
 }
 
 // Helper functions
+
+function findParentGroup(object) {
+  var parent = object.parentGroup();
+  if (parent == null) {
+    return null;
+  }
+  else if (parent.className() == "MSLayerGroup") {
+    return parent;
+  } else {
+    return findParentGroup(parent);
+  }
+}
 
 function isolateGroup(context, group) {
   unlockLayerTree(context, group);
