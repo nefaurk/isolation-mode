@@ -42,11 +42,13 @@ function lockAllLayers(context) {
   var layer;
   while (layer = layerLoop.nextObject()) {
     layer.setIsLocked(true);
+    layer.setIsVisible(false);
   }
 }
 
 function unlockLayerTree(context, tree) {
   tree.setIsLocked(false);
+  tree.setIsVisible(true);
   tree.setHasClickThrough(true);
   
   var children = tree.children();
@@ -54,6 +56,7 @@ function unlockLayerTree(context, tree) {
   var child;
   while (child = childLoop.nextObject()) {
     child.setIsLocked(false);
+    child.setIsVisible(true);
   }
   
   var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
@@ -69,6 +72,7 @@ function unlockAncestors(context, layer) {
   var container = layer.parentGroup();
   if (container != null) {
     container.setIsLocked(false);
+    container.setIsVisible(true);
     container.setHasClickThrough(true);
     unlockAncestors(context, container);
   }
@@ -82,6 +86,7 @@ function unlockAllLayers(context) {
   var layer;
   while (layer = layerLoop.nextObject()) {
     layer.setIsLocked(false);
+    layer.setIsVisible(true);
   }
   
   var predicate = NSPredicate.predicateWithFormat("className == %@", "MSLayerGroup");
